@@ -3,27 +3,14 @@
 import sys
 import random
 
-class Graph:
-    def __init__(self):
-        self.verts = []
-        self.edges = []
-    
-    def add_vertex(self, v):
-        self.verts.append(v)
-
-    def add_edge(self, edge):
-        self.edges.append(edge)
-
 def create_graph(n, dimension):
     graph = Graph()
     #Dimension 0 for the complete graph with randomly distributed weights
     if dimension == 0:
         #Create vertices
         for i in range(n):
-            graph.add_vertex(i)
-            #ensure there is an edge from every vertex to every other vertex
-            for j in graph.verts:
-                graph.add_edge((i,j))
+            
+                
 
     #Dimension 1 for the hypercube graph with randomly distributed weights
     elif dimension == 1:
@@ -31,11 +18,16 @@ def create_graph(n, dimension):
 
     #Dimensions 2, 3, 4 for the complete graphs on points in 2D, 3D, and 4D space
     elif dimension == 2:
-        #something
+        #Each vertex is of the form (x,y)
+        #For every n, we need to generate vertex v_i = (x,y)
+
+        #Each edge weighting is the Euclidean distance 
     elif dimension == 3:
-        #something
+        #Each vertex is of the form (x,y,z)
+        #Each edge weighting is the Euclidean distance
     elif dimension == 4:
-        #something
+        #Each vertex is of the form (x,y,z,w)
+        #Each edge weighting is the Euclidean distance
     return graph
 
 def mst(graph):
