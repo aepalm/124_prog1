@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+
+#Usage: ./randmst 0 numpoints numtrials dimension
+#To get values for table/graph, use ./randmst 1 0 0 0
 import sys
 import random
 
@@ -181,7 +184,7 @@ def main():
                 weight = mst(graph,n)
                 total_weights += weight
             average_weight = total_weights/5
-            print("n: ", n, "avg weight over 5 trials: ", average_weight)
+            print("n: ", n, "   avg weight over 5 trials: ", average_weight)
 
         #Dimension 2
         print("-----------------")
