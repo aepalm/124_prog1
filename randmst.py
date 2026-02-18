@@ -55,11 +55,13 @@ def create_graph(n, dimension):
             graph.add_vertex((x,y))
         #Create edges with weights as Euclidean distance
         for i in range(n):
+            u = graph.verts[i]
             for j in range(i+1, n):
-                x1, y1 = list(graph.verts)[i]
-                x2, y2 = list(graph.verts)[j]
+                v = graph.verts[j]
+                x1, y1 = u
+                x2, y2 = v
                 weight = ((x2-x1)**2 + (y2-y1)**2)**0.5
-                graph.add_edge((i,j), weight)
+                graph.add_edge((u,v), weight)
 
     elif dimension == 3:
         #Create each vertex  of the form (x,y,z)
@@ -70,11 +72,13 @@ def create_graph(n, dimension):
             graph.add_vertex((x,y,z))
         #Create edges with weights as Euclidean distance
         for i in range(n):
+            u = graph.verts[i]
             for j in range(i+1, n):
-                x1, y1, z1 = list(graph.verts)[i]
-                x2, y2, z2 = list(graph.verts)[j]
+                v = graph.verts[j]
+                x1, y1, z1 = u
+                x2, y2, z2 = v
                 weight = ((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)**0.5
-                graph.add_edge((i,j), weight)
+                graph.add_edge((u,v), weight)
     elif dimension == 4:
         #Create each vertex  of the form (x,y,z,w)
         for i in range(n):
@@ -85,26 +89,27 @@ def create_graph(n, dimension):
             graph.add_vertex((x,y,z,w))
         #Create edges with weights as Euclidean distance
         for i in range(n):
+            u = graph.verts[i]
             for j in range(i+1, n):
-                x1, y1, z1, w1 = list(graph.verts)[i]
-                x2, y2, z2, w2 = list(graph.verts)[j]
+                v = graph.verts[j]
+                x1, y1, z1, w1 = u
+                x2, y2, z2, w2 = v
                 weight = ((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2 + (w2-w1)**2)**0.5
-                graph.add_edge((i,j), weight)
+                graph.add_edge((u,v), weight)
         
         
 
-    print("DEBUG Created graph with Vertices: ", graph.verts, "and edges: ", graph.edges)
+    #print("DEBUG Created graph with Vertices: ", graph.verts, "and edges: ", graph.edges)
     return graph
 
-def mst(graph):
+def mst(graph,n): #n is the number of vertices
     #Find the mst of the graph using Prim's algorithm
     vertices = list(graph.verts)
     edges = graph.edges
 
     #Initialize for all v d[v] <- inf , S = empty, create(H)
-    mst = Graph() #S in Prim's
-    heap = dict() #min-priority queue
-    d = {v: 9999999 for v in vertices}
+    S = set() 
+    d = {v: 9999999 for v in vertices} 
     prev = {v : None for v in vertices}
 
     #Start at "start"
@@ -112,21 +117,38 @@ def mst(graph):
     
     d[start] = 0 #d[s] = 0
     prev[start] = None #Prev[s] <- null
-    heap[start] = 0 #Insert(H, s, 0)
+    
+    mst_weight = 0
 
-    while len(heap) != 0: #while heap is not empty
+    while len(S) < n: 
         # u <- deleteMin(H)
+        u = None
+        min = 9999999
 
         #S <- S U {u}
-        
+
         #For (u,v) in edges and v not in S:
+        for v in vertices:
+            if v not in S and d[v] < min:
+                min = d[v]
+                u = v
+
+        S.add(u)
+        mst_weight += d[u]
         #if d[v] > w((u,v))
         #d[v] = w((u,v)); Prev[v] = u; Insert(H,v,d[v])
-
-
+        for (a,b), weight in edges.items():
+            if a == u and b not in S:
+                if weight < d[b]:
+                    d[b] = weight
+                    prev[b] = u
+            elif b == u and a not in S:
+                if weight < d[a]:
+                    d[a] = weight
+                    prev[a] = u
 
     #Return the weight of that mst
-    return None
+    return mst_weight
 
 def main():
     if len(sys.argv) != 5:
@@ -147,7 +169,7 @@ def main():
     total_weights = 0
     for i in range(numtrials):
         graph = create_graph(numpoints, dimension)
-        weight = mst(graph)
+        weight = mst(graph,numpoints)
         total_weights += weight
 
     average_weight = total_weights/numtrials
