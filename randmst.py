@@ -97,11 +97,36 @@ def create_graph(n, dimension):
     return graph
 
 def mst(graph):
-    #Find the mst of the graph
-    weight = 0
+    #Find the mst of the graph using Prim's algorithm
+    vertices = list(graph.verts)
+    edges = graph.edges
+
+    #Initialize for all v d[v] <- inf , S = empty, create(H)
+    mst = Graph() #S in Prim's
+    heap = dict() #min-priority queue
+    d = {v: 9999999 for v in vertices}
+    prev = {v : None for v in vertices}
+
+    #Start at "start"
+    start = vertices[0]
+    
+    d[start] = 0 #d[s] = 0
+    prev[start] = None #Prev[s] <- null
+    heap[start] = 0 #Insert(H, s, 0)
+
+    while len(heap) != 0: #while heap is not empty
+        # u <- deleteMin(H)
+
+        #S <- S U {u}
+        
+        #For (u,v) in edges and v not in S:
+        #if d[v] > w((u,v))
+        #d[v] = w((u,v)); Prev[v] = u; Insert(H,v,d[v])
+
+
 
     #Return the weight of that mst
-    return weight
+    return None
 
 def main():
     if len(sys.argv) != 5:
