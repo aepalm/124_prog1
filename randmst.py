@@ -160,15 +160,84 @@ def main():
     #print("DEBUG Number of points:", numpoints)
     #print("DEBUG Number of trials:", numtrials)
     #print("DEBUG Dimension:", dimension)
+    if flag == 0:
+        total_weights = 0
+        for i in range(numtrials):
+            graph = create_graph(numpoints, dimension)
+            weight = mst(graph,numpoints)
+            total_weights += weight
 
-    total_weights = 0
-    for i in range(numtrials):
-        graph = create_graph(numpoints, dimension)
-        weight = mst(graph,numpoints)
-        total_weights += weight
+        average_weight = total_weights/numtrials
+        print(average_weight, numpoints, numtrials, dimension)
 
-    average_weight = total_weights/numtrials
-    print(average_weight, numpoints, numtrials, dimension)
+    if flag == 1: #Testing
+        n_vals = [128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768]
+        #Dimension 0
+        print("Dimension 0")
+        for n in n_vals:
+            total_weights = 0
+            for j in range(5):
+                graph = create_graph(n, 0)
+                weight = mst(graph,n)
+                total_weights += weight
+            average_weight = total_weights/5
+            print("n: ", n, "avg weight over 5 trials: ", average_weight)
+
+        #Dimension 2
+        print("-----------------")
+        print("Dimension 2")
+        for n in n_vals:
+            total_weights = 0
+            for j in range(5):
+                graph = create_graph(n, 2)
+                weight = mst(graph,n)
+                total_weights += weight
+            average_weight = total_weights/5
+            print("n: ", n, "avg weight over 5 trials: ", average_weight)
+
+        #Dimension 3
+        print("-----------------")
+        print("Dimension 3")
+        for n in n_vals:
+            total_weights = 0
+            for j in range(5):
+                graph = create_graph(n, 3)
+                weight = mst(graph,n)
+                total_weights += weight
+            average_weight = total_weights/5
+            print("n: ", n, "avg weight over 5 trials: ", average_weight)
+
+        #Dimension 4
+        print("-----------------")
+        print("Dimension 4")
+        for n in n_vals:
+            total_weights = 0
+            for j in range(5):
+                graph = create_graph(n, 4)
+                weight = mst(graph,n)
+                total_weights += weight
+            average_weight = total_weights/5
+            print("n: ", n, "avg weight over 5 trials: ", average_weight)
+
+
+        #Dimension 1
+        print("-----------------")
+        print("Dimension 1")
+        n_vals.append(65536)
+        n_vals.append(131072)
+        n_vals.append(262144)
+
+        for n in n_vals:
+            total_weights = 0
+            for j in range(5):
+                graph = create_graph(n, 1)
+                weight = mst(graph,n)
+                total_weights += weight
+            average_weight = total_weights/5
+            print("n: ", n, "avg weight over 5 trials: ", average_weight)
+
+
+
 
 
 
