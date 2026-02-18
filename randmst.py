@@ -31,9 +31,6 @@ def create_graph(n, dimension):
                 
 
     #Dimension 1 for the hypercube graph with randomly distributed weights
-    # n vertices numbered 0 through n-1, where (a,b) is an edge iff 
-    # |a-b| = 2^i for some i, and the weight of each edge is a real 
-    # number chosen uniformly at random on [0,1]
     elif dimension == 1:
         #Create vertices
         for i in range(n):
@@ -125,8 +122,6 @@ def mst(graph,n): #n is the number of vertices
         u = None
         min = 9999999
 
-        #S <- S U {u}
-
         #For (u,v) in edges and v not in S:
         for v in vertices:
             if v not in S and d[v] < min:
@@ -136,7 +131,7 @@ def mst(graph,n): #n is the number of vertices
         S.add(u)
         mst_weight += d[u]
         #if d[v] > w((u,v))
-        #d[v] = w((u,v)); Prev[v] = u; Insert(H,v,d[v])
+        #d[v] = w((u,v)); Prev[v] = u;
         for (a,b), weight in edges.items():
             if a == u and b not in S:
                 if weight < d[b]:
@@ -147,7 +142,7 @@ def mst(graph,n): #n is the number of vertices
                     d[a] = weight
                     prev[a] = u
 
-    #Return the weight of that mst
+    #Return the weight 
     return mst_weight
 
 def main():
@@ -161,10 +156,10 @@ def main():
     dimension = int(sys.argv[4]) 
    
 
-    print("DEBUG Flag:", flag)
-    print("DEBUG Number of points:", numpoints)
-    print("DEBUG Number of trials:", numtrials)
-    print("DEBUG Dimension:", dimension)
+    #print("DEBUG Flag:", flag)
+    #print("DEBUG Number of points:", numpoints)
+    #print("DEBUG Number of trials:", numtrials)
+    #print("DEBUG Dimension:", dimension)
 
     total_weights = 0
     for i in range(numtrials):
