@@ -5,11 +5,11 @@ import random
 
 class Graph():
     def __init__(self):
-        self.verts = set()
+        self.verts = list()
         self.edges = dict() #key is edge, value is weight
 
     def add_vertex(self, vertex):
-        self.verts.add(vertex)
+        self.verts.append(vertex)
 
     def add_edge(self, edge, weight):
         self.edges[edge] = weight
@@ -104,7 +104,7 @@ def create_graph(n, dimension):
 
 def mst(graph,n): #n is the number of vertices
     #Find the mst of the graph using Prim's algorithm
-    vertices = list(graph.verts)
+    vertices = graph.verts
     edges = graph.edges
 
     #Initialize for all v d[v] <- inf , S = empty, create(H)
