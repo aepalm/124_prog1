@@ -5,11 +5,14 @@
 #To get values for table/graph, use ./randmst 1 0 0 0
 import sys
 import random
+import math
 
 class Graph():
     def __init__(self):
         self.verts = list()
         self.edges = dict() #key is edge, value is weight
+        self.adj = None #adjacency list
+        self.dim = None
 
     def add_vertex(self, vertex):
         self.verts.append(vertex)
@@ -23,63 +26,50 @@ def create_graph(n, dimension):
     graph = Graph()
     #Dimension 0 for the complete graph with randomly distributed weights
     if dimension == 0:
+        graph.dim = 0
         #Create vertices
         for i in range(n):
             graph.add_vertex(i)
-        #Create edges with random weights
-        for i in range(n):
-            for j in range(i+1, n):
-                weight = random.random()
-                graph.add_edge((i,j), weight)
                 
 
     #Dimension 1 for the hypercube graph with randomly distributed weights
     elif dimension == 1:
+        graph.dim = 1
         #Create vertices
         for i in range(n):
             graph.add_vertex(i)
         #Create edges with random weights
+        b = (n-1).bit_length()
         for i in range(n):
-            for j in range(i+1, n):
-                if abs(i-j) & (abs(i-j) - 1) == 0: # Check if |a-b| is a power of 2
-                    weight = random.random()
-                    graph.add_edge((i,j), weight)
+            for k in range(b):
+                j = i ^ (1 << k)
+                if j < n and j > i:
+                    w = random.random()
+                    graph.adj[i].append((j, w))
+                    graph.adj[j].append((i, w))
 
     #Dimensions 2, 3, 4 for the complete graphs on points in 2D, 3D, and 4D space
     elif dimension == 2:
+        graph.dim = 2
         #Each vertex is of the form (x,y)
         #For every n, we need to generate vertex v_i = (x,y)
         for i in range(n):
             x = random.random()
             y = random.random()
             graph.add_vertex((x,y))
-        #Create edges with weights as Euclidean distance
-        for i in range(n):
-            u = graph.verts[i]
-            for j in range(i+1, n):
-                v = graph.verts[j]
-                x1, y1 = u
-                x2, y2 = v
-                weight = ((x2-x1)**2 + (y2-y1)**2)**0.5
-                graph.add_edge((u,v), weight)
+        
 
     elif dimension == 3:
+        graph.dim = 3
         #Create each vertex  of the form (x,y,z)
         for i in range(n):
             x = random.random()
             y = random.random()
             z = random.random()
             graph.add_vertex((x,y,z))
-        #Create edges with weights as Euclidean distance
-        for i in range(n):
-            u = graph.verts[i]
-            for j in range(i+1, n):
-                v = graph.verts[j]
-                x1, y1, z1 = u
-                x2, y2, z2 = v
-                weight = ((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)**0.5
-                graph.add_edge((u,v), weight)
+        
     elif dimension == 4:
+        graph.dim = 4
         #Create each vertex  of the form (x,y,z,w)
         for i in range(n):
             x = random.random()
@@ -87,40 +77,26 @@ def create_graph(n, dimension):
             z = random.random()
             w = random.random()
             graph.add_vertex((x,y,z,w))
-        #Create edges with weights as Euclidean distance
-        for i in range(n):
-            u = graph.verts[i]
-            for j in range(i+1, n):
-                v = graph.verts[j]
-                x1, y1, z1, w1 = u
-                x2, y2, z2, w2 = v
-                weight = ((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2 + (w2-w1)**2)**0.5
-                graph.add_edge((u,v), weight)
         
-        
-
-    #print("DEBUG Created graph with Vertices: ", graph.verts, "and edges: ", graph.edges)
     return graph
 
-def mst(graph,n): #n is the number of vertices
+def mst_complete(graph):
     #Find the mst of the graph using Prim's algorithm
     vertices = graph.verts
-    edges = graph.edges
+    n = len(graph.verts)
 
     #Initialize for all v d[v] <- inf , S = empty, create(H)
     S = set() 
     d = {v: 9999999 for v in vertices} 
-    prev = {v : None for v in vertices}
 
     #Start at "start"
     start = vertices[0]
     
     d[start] = 0 #d[s] = 0
-    prev[start] = None #Prev[s] <- null
     
     mst_weight = 0
 
-    while len(S) < n: 
+    for _ in range(n): 
         # u <- deleteMin(H)
         u = None
         min = 9999999
@@ -133,20 +109,61 @@ def mst(graph,n): #n is the number of vertices
 
         S.add(u)
         mst_weight += d[u]
-        #if d[v] > w((u,v))
-        #d[v] = w((u,v)); Prev[v] = u;
-        for (a,b), weight in edges.items():
-            if a == u and b not in S:
-                if weight < d[b]:
-                    d[b] = weight
-                    prev[b] = u
-            elif b == u and a not in S:
-                if weight < d[a]:
-                    d[a] = weight
-                    prev[a] = u
+        
+        for v in vertices:
+            if v not in S:
+                if graph.dim == 0:
+                    w = random.random()
+                elif graph.dim == 2:
+                    x1, y1 = u
+                    x2, y2 = v
+                    w = ((x2-x1)**2 + (y2-y1)**2)**0.5
+                elif graph.dim == 3:
+                    x1, y1, z1 = u
+                    x2, y2, z2 = v
+                    w = ((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)**0.5
+                elif graph.dim ==4:
+                    x1, y1, z1, w1 = u
+                    x2, y2, z2, w2 = v
+                    w = ((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2 + (w2-w1)**2)**0.5
+
+                if w < d[v]:
+                    d[v] = w
 
     #Return the weight 
     return mst_weight
+
+def mst_hyper(graph):
+    n = len(graph.adj)
+    S = set()
+    d = [999999] * n
+
+    d[0] = 0
+    total = 0
+
+
+    for _ in range(n):
+        u = None
+        min = 999999
+        for i in range(n):
+            if i not in S and d[i] < min:
+                min = d[i]
+                u = i
+        
+        S.append(u)
+        total += min
+
+        for v, w in graph.adj[u]:
+            if v not in S and w < d[v]:
+                d[v] = w
+
+    return total
+
+def mst(graph):
+    if graph.dim == 1:
+        return mst_hyper(graph)
+    else:
+        return mst_complete(graph)
 
 def main():
     if len(sys.argv) != 5:
@@ -165,9 +182,9 @@ def main():
     #print("DEBUG Dimension:", dimension)
     if flag == 0:
         total_weights = 0
-        for i in range(numtrials):
+        for _ in range(numtrials):
             graph = create_graph(numpoints, dimension)
-            weight = mst(graph,numpoints)
+            weight = mst(graph)
             total_weights += weight
 
         average_weight = total_weights/numtrials
@@ -179,9 +196,9 @@ def main():
         print("Dimension 0")
         for n in n_vals:
             total_weights = 0
-            for j in range(5):
+            for _ in range(5):
                 graph = create_graph(n, 0)
-                weight = mst(graph,n)
+                weight = mst(graph)
                 total_weights += weight
             average_weight = total_weights/5
             print("n: ", n, "   avg weight over 5 trials: ", average_weight)
@@ -191,9 +208,9 @@ def main():
         print("Dimension 2")
         for n in n_vals:
             total_weights = 0
-            for j in range(5):
+            for _ in range(5):
                 graph = create_graph(n, 2)
-                weight = mst(graph,n)
+                weight = mst(graph)
                 total_weights += weight
             average_weight = total_weights/5
             print("n: ", n, "avg weight over 5 trials: ", average_weight)
@@ -203,9 +220,9 @@ def main():
         print("Dimension 3")
         for n in n_vals:
             total_weights = 0
-            for j in range(5):
+            for _ in range(5):
                 graph = create_graph(n, 3)
-                weight = mst(graph,n)
+                weight = mst(graph)
                 total_weights += weight
             average_weight = total_weights/5
             print("n: ", n, "avg weight over 5 trials: ", average_weight)
@@ -215,9 +232,9 @@ def main():
         print("Dimension 4")
         for n in n_vals:
             total_weights = 0
-            for j in range(5):
+            for _ in range(5):
                 graph = create_graph(n, 4)
-                weight = mst(graph,n)
+                weight = mst(graph)
                 total_weights += weight
             average_weight = total_weights/5
             print("n: ", n, "avg weight over 5 trials: ", average_weight)
@@ -232,9 +249,9 @@ def main():
 
         for n in n_vals:
             total_weights = 0
-            for j in range(5):
+            for _ in range(5):
                 graph = create_graph(n, 1)
-                weight = mst(graph,n)
+                weight = mst(graph)
                 total_weights += weight
             average_weight = total_weights/5
             print("n: ", n, "avg weight over 5 trials: ", average_weight)
