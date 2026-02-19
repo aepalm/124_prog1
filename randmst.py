@@ -11,7 +11,7 @@ class Graph():
     def __init__(self):
         self.verts = list()
         self.edges = dict() #key is edge, value is weight
-        self.adj = None #adjacency list
+        self.adj = dict() #adjacency list
         self.dim = None
 
     def add_vertex(self, vertex):
@@ -45,6 +45,10 @@ def create_graph(n, dimension):
                 j = i ^ (1 << k)
                 if j < n and j > i:
                     w = random.random()
+                    if i not in graph.adj:
+                        graph.adj[i] = list()
+                    if j not in graph.adj:
+                        graph.adj[j] = list()
                     graph.adj[i].append((j, w))
                     graph.adj[j].append((i, w))
 
@@ -99,12 +103,12 @@ def mst_complete(graph):
     for _ in range(n): 
         # u <- deleteMin(H)
         u = None
-        min = 9999999
+        best = 9999999
 
         #For (u,v) in edges and v not in S:
         for v in vertices:
-            if v not in S and d[v] < min:
-                min = d[v]
+            if v not in S and d[v] < best:
+                best = d[v]
                 u = v
 
         S.add(u)
@@ -150,7 +154,7 @@ def mst_hyper(graph):
                 min = d[i]
                 u = i
         
-        S.append(u)
+        S.add(u)
         total += min
 
         for v, w in graph.adj[u]:
