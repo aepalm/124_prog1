@@ -1,0 +1,57 @@
+Dimension 0
+n:  128    avg weight over 5 trials:  1.18565830852417
+n:  256    avg weight over 5 trials:  1.2785001586904083       
+n:  512    avg weight over 5 trials:  1.1877731386559842       
+n:  1024    avg weight over 5 trials:  1.16436488160526        
+n:  2048    avg weight over 5 trials:  1.192925512553064       
+n:  4096    avg weight over 5 trials:  1.202192324750082       
+n:  8192    avg weight over 5 trials:  1.2087003497981315      
+n:  16384    avg weight over 5 trials:  1.2023762489808338     
+n:  32768    avg weight over 5 trials:  1.2021756415080198
+-----------------
+Dimension 2
+n:  128 avg weight over 5 trials:  7.4900902002322045
+n:  256 avg weight over 5 trials:  10.6045513934344
+n:  512 avg weight over 5 trials:  15.025100653725648
+n:  1024 avg weight over 5 trials:  21.10720638076783
+n:  2048 avg weight over 5 trials:  29.558704255192215
+n:  4096 avg weight over 5 trials:  41.880455584634184
+n:  8192 avg weight over 5 trials:  58.981937738478585
+n:  16384 avg weight over 5 trials:  83.17710225403317
+n:  32768 avg weight over 5 trials:  117.52043681722532
+-----------------
+Dimension 3
+n:  128 avg weight over 5 trials:  17.630914158474486
+n:  256 avg weight over 5 trials:  27.511536745723305
+n:  512 avg weight over 5 trials:  42.87942098914757
+n:  1024 avg weight over 5 trials:  67.96645823770032
+n:  2048 avg weight over 5 trials:  107.31983942879359
+n:  4096 avg weight over 5 trials:  168.76736848326888
+n:  8192 avg weight over 5 trials:  267.2360222291576
+n:  16384 avg weight over 5 trials:  421.97733928341825
+n:  32768 avg weight over 5 trials:  667.7341810821756
+-----------------
+Dimension 4
+n:  128 avg weight over 5 trials:  28.264256532245234
+n:  256 avg weight over 5 trials:  47.435159315124636
+n:  512 avg weight over 5 trials:  78.05392905934337     
+n:  1024 avg weight over 5 trials:  130.0866925154395    
+n:  2048 avg weight over 5 trials:  216.61041184806226   
+n:  4096 avg weight over 5 trials:  360.9788202280212    
+n:  8192 avg weight over 5 trials:  604.3192343549927    
+n:  16384 avg weight over 5 trials:  1008.1351156849811  
+n:  32768 avg weight over 5 trials:  1689.7959194709474  
+-----------------
+Dimension 1
+n:  128 avg weight over 5 trials:  19.28864346073417     
+n:  256 avg weight over 5 trials:  35.01457086631173     
+n:  512 avg weight over 5 trials:  62.23533082379404     
+n:  1024 avg weight over 5 trials:  116.83165650586898   
+n:  2048 avg weight over 5 trials:  209.2755386623342    
+n:  4096 avg weight over 5 trials:  391.1255710161795    
+n:  8192 avg weight over 5 trials:  720.17756125257      
+n:  16384 avg weight over 5 trials:  1340.1004746215872  
+n:  32768 avg weight over 5 trials:  2521.9517661106834  
+n:  65536 avg weight over 5 trials:  4719.366981463127   
+n:  131072 avg weight over 5 trials:  8923.873397978841  
+n:  262144 avg weight over 5 trials:  16871.385790306584
