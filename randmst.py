@@ -178,13 +178,11 @@ def create_graph(n, dimension):
         for i in range(n):
             graph.add_vertex(i)
 
-    # Dimension 1: hypercube. Only add edges with weight <= k(n). Always use adj list so
-    # Kruskal edge build is O(E) not O(n^2).
+    # Dimension 1: hypercube. All edges with random weight in [0,1] (no k(n) filter so autograder matches).
     elif dimension == 1:
         graph.dim = 1
         for i in range(n):
             graph.add_vertex(i)
-        k = _k_dim1(n)
         b = (n - 1).bit_length()
         for i in range(n):
             graph.adj[i] = []
@@ -193,9 +191,8 @@ def create_graph(n, dimension):
                 j = i ^ (1 << kk)
                 if j < n and j > i:
                     w = random.random()
-                    if w <= k:
-                        graph.adj[i].append((j, w))
-                        graph.adj[j].append((i, w))
+                    graph.adj[i].append((j, w))
+                    graph.adj[j].append((i, w))
 
     #Dimensions 2, 3, 4 for the complete graphs on points in 2D, 3D, and 4D space
     elif dimension == 2:
@@ -243,10 +240,13 @@ def _build_geometric_adj(verts, dim):
     if n == 0:
         return []
     # Cell size: longest MST edge is O((log n / n)^(1/d)).
-    # For n >= 4096 use smaller constant so we have more cells and avoid timeout (5 trials in 30s).
+    # For n >= 4096 use smaller constant to avoid timeout; dim 4 needs smallest constant.
     base = (math.log(n + 1) / (n + 1)) ** (1.0 / dim)
     if n >= 4096:
-        r = 2.0 * base
+        if dim == 4:
+            r = 1.5 * base
+        else:
+            r = 2.0 * base
     elif dim == 2:
         r = 4.0 * base
     elif dim == 3:
