@@ -8,29 +8,8 @@ import random
 import math
 
 
-class UnionFind:
-    def __init__(self, n):
-        self.parent = list(range(n))
-        self.rank = [0] * n
-
-    def find(self, x):
-        if self.parent[x] != x:
-            self.parent[x] = self.find(self.parent[x])
-        return self.parent[x]
-
-    def union(self, x, y):
-        rx, ry = self.find(x), self.find(y)
-        if rx == ry:
-            return
-        if self.rank[rx] < self.rank[ry]:
-            rx, ry = ry, rx
-        self.parent[ry] = rx
-        if self.rank[rx] == self.rank[ry]:
-            self.rank[rx] += 1
-
-
 class MinHeap:
-    """Lazy min-heap (no decrease_key)."""
+    """Min-heap (priority queue) by key. Stores (key, value) pairs; extract_min returns smallest key."""
 
     def __init__(self):
         self.heap = []  # list of (key, value)
@@ -76,80 +55,11 @@ class MinHeap:
             i = smallest
 
 
-class IndexedMinHeap:
-    """Min-heap with decrease_key for eager Prim. Tracks at most one (key, value) per value."""
-
-    def __init__(self):
-        self.heap = []   # list of (key, value)
-        self.pos = {}    # value -> index in heap
-
-    def is_empty(self):
-        return len(self.heap) == 0
-
-    def contains(self, value):
-        return value in self.pos
-
-    def insert(self, key, value):
-        i = len(self.heap)
-        self.heap.append((key, value))
-        self.pos[value] = i
-        self._sift_up(i)
-
-    def extract_min(self):
-        if not self.heap:
-            return None
-        key, value = self.heap[0]
-        del self.pos[value]
-        if len(self.heap) == 1:
-            self.heap.pop()
-            return (key, value)
-        self.heap[0] = self.heap.pop()
-        self.pos[self.heap[0][1]] = 0
-        self._sift_down(0)
-        return (key, value)
-
-    def decrease_key(self, value, new_key):
-        i = self.pos[value]
-        if new_key >= self.heap[i][0]:
-            return
-        self.heap[i] = (new_key, value)
-        self._sift_up(i)
-
-    def _sift_up(self, i):
-        while i > 0:
-            p = (i - 1) // 2
-            if self.heap[p][0] <= self.heap[i][0]:
-                break
-            self._swap(i, p)
-            i = p
-
-    def _sift_down(self, i):
-        n = len(self.heap)
-        while True:
-            left = 2 * i + 1
-            right = 2 * i + 2
-            smallest = i
-            if left < n and self.heap[left][0] < self.heap[smallest][0]:
-                smallest = left
-            if right < n and self.heap[right][0] < self.heap[smallest][0]:
-                smallest = right
-            if smallest == i:
-                break
-            self._swap(i, smallest)
-            i = smallest
-
-    def _swap(self, i, j):
-        self.heap[i], self.heap[j] = self.heap[j], self.heap[i]
-        self.pos[self.heap[i][1]] = i
-        self.pos[self.heap[j][1]] = j
-
-
 class Graph():
     def __init__(self):
         self.verts = list()
-        self.edges = dict()  # key is edge, value is weight
-        self.adj = dict()    # adjacency list (used if matrix not set)
-        self.matrix = None   # adjacency matrix: matrix[i][j] = weight, or inf for no edge
+        self.edges = dict() #key is edge, value is weight
+        self.adj = dict() #adjacency list
         self.dim = None
 
     def add_vertex(self, vertex):
@@ -160,37 +70,33 @@ class Graph():
         pass
 
 
-def _k_dim0(n):
-    """Hint: MST extremely unlikely to use edge of weight > k(n). Complete graph, weights in [0,1]."""
-    return 15.0 * math.log(n + 1) / (n + 1)
-
-
-def _k_dim1(n):
-    """Hint: MST extremely unlikely to use heavy edges. Hypercube max MST edge O(1/log n). Keep enough for connectivity."""
-    return min(1.0, 8.0 / math.log(n + 2))
-
-
 def create_graph(n, dimension):
     graph = Graph()
-    # Dimension 0: complete graph, random weights in [0,1]. No edges stored here; sparse graph built in MST.
+    #Dimension 0 for the complete graph with randomly distributed weights
     if dimension == 0:
         graph.dim = 0
+        #Create vertices
         for i in range(n):
             graph.add_vertex(i)
+                
 
-    # Dimension 1: hypercube. All edges with random weight in [0,1] (no k(n) filter so autograder matches).
+    #Dimension 1 for the hypercube graph with randomly distributed weights
     elif dimension == 1:
         graph.dim = 1
+        #Create vertices
         for i in range(n):
             graph.add_vertex(i)
-        b = (n - 1).bit_length()
+        #Create edges with random weights
+        b = (n-1).bit_length()
         for i in range(n):
-            graph.adj[i] = []
-        for i in range(n):
-            for kk in range(b):
-                j = i ^ (1 << kk)
+            for k in range(b):
+                j = i ^ (1 << k)
                 if j < n and j > i:
                     w = random.random()
+                    if i not in graph.adj:
+                        graph.adj[i] = list()
+                    if j not in graph.adj:
+                        graph.adj[j] = list()
                     graph.adj[i].append((j, w))
                     graph.adj[j].append((i, w))
 
@@ -228,6 +134,7 @@ def create_graph(n, dimension):
 
 
 def _dist(u, v, dim):
+    """Euclidean distance between points u and v in dim dimensions."""
     if dim == 2:
         return ((v[0] - u[0]) ** 2 + (v[1] - u[1]) ** 2) ** 0.5
     if dim == 3:
@@ -236,23 +143,17 @@ def _dist(u, v, dim):
 
 
 def _build_geometric_adj(verts, dim):
+    """
+    Build sparse adjacency list for points in [0,1]^dim using a grid.
+    Only considers point pairs within nearby cells so the graph has O(n log n) edges
+    with high probability while still containing all MST edges (longest MST edge is
+    O((log n / n)^(1/dim))). Returns adj[i] = [(j, weight), ...].
+    """
     n = len(verts)
     if n == 0:
         return []
-    # Cell size: longest MST edge is O((log n / n)^(1/d)).
-    # For n >= 4096 use smaller constant to avoid timeout; dim 4 needs smallest constant.
-    base = (math.log(n + 1) / (n + 1)) ** (1.0 / dim)
-    if n >= 4096:
-        if dim == 4:
-            r = 1.5 * base
-        else:
-            r = 2.0 * base
-    elif dim == 2:
-        r = 4.0 * base
-    elif dim == 3:
-        r = 2.5 * base
-    else:
-        r = 2.0 * base
+    # Cell size: longest MST edge is O((log n / n)^(1/d)); use larger cells to be safe
+    r = 4.0 * (math.log(n + 1) / (n + 1)) ** (1.0 / dim)
     r = max(r, 1e-10)
     # Grid: cell_key -> list of vertex indices
     grid = {}
@@ -305,51 +206,32 @@ def _build_geometric_adj(verts, dim):
 
 
 def mst_geometric(graph):
-    """Eager Prim: at most one heap entry per vertex, use decrease_key when improving."""
+    """
+    Prim's algorithm with min-heap for random geometric graphs (dim 2, 3, 4).
+    Uses a grid to only consider O(n log n) nearby edges; runtime O(n log^2 n) expected.
+    """
     verts = graph.verts
     n = len(verts)
     dim = graph.dim
     adj = _build_geometric_adj(verts, dim)
-    inf = float('inf')
-    d = [inf] * n
+    S = set()
+    d = [999999.0] * n
     d[0] = 0.0
     total = 0.0
-    S = set()
-    heap = IndexedMinHeap()
-    heap.insert(0.0, 0)
+    heap = MinHeap()
+    heap.push(0.0, 0)
 
     while not heap.is_empty():
         key, u = heap.extract_min()
+        if u in S:
+            continue
         S.add(u)
         total += key
         for v, w in adj[u]:
             if v not in S and w < d[v]:
                 d[v] = w
-                if heap.contains(v):
-                    heap.decrease_key(v, w)
-                else:
-                    heap.insert(w, v)
+                heap.push(w, v)
 
-    return total
-
-
-def mst_dim0_sparse(graph):
-    """Hint: only keep edges with weight <= k(n); run Kruskal on sparse graph. Same MST w.h.p."""
-    n = len(graph.verts)
-    k = _k_dim0(n)
-    edges = []
-    for i in range(n):
-        for j in range(i + 1, n):
-            w = random.random()
-            if w <= k:
-                edges.append((w, i, j))
-    edges.sort(key=lambda e: e[0])
-    uf = UnionFind(n)
-    total = 0.0
-    for w, u, v in edges:
-        if uf.find(u) != uf.find(v):
-            uf.union(u, v)
-            total += w
     return total
 
 
@@ -406,54 +288,30 @@ def mst_complete(graph):
     #Return the weight 
     return mst_weight
 
-def mst_hyper_prim(graph):
-    """Eager Prim for hypercube (adj list only)."""
-    n = len(graph.verts)
-    inf = float('inf')
-    d = [inf] * n
+def mst_hyper(graph):
+    """Prim's algorithm for hypercube (dim 1) using a min-heap. Runtime O(n log^2 n)."""
+    n = len(graph.adj)
+    S = set()
+    d = [999999] * n
     d[0] = 0
     total = 0.0
-    S = set()
-    heap = IndexedMinHeap()
-    heap.insert(0.0, 0)
+    heap = MinHeap()
+    heap.push(0.0, 0)
+
     while not heap.is_empty():
         key, u = heap.extract_min()
+        if u in S:
+            continue
         S.add(u)
         total += key
-        for v, w in graph.adj.get(u, []):
+        for v, w in graph.adj[u]:
             if v not in S and w < d[v]:
                 d[v] = w
-                if heap.contains(v):
-                    heap.decrease_key(v, w)
-                else:
-                    heap.insert(w, v)
+                heap.push(w, v)
+
     return total
-
-
-def mst_hyper_kruskal(graph):
-    """Kruskal for hypercube (adj list: O(E) edge build)."""
-    n = len(graph.verts)
-    edges = []
-    for i in range(n):
-        for v, w in graph.adj.get(i, []):
-            if v > i:
-                edges.append((w, i, v))
-    edges.sort(key=lambda e: e[0])
-    uf = UnionFind(n)
-    total = 0.0
-    for w, u, v in edges:
-        if uf.find(u) != uf.find(v):
-            uf.union(u, v)
-            total += w
-    return total
-
-
-def mst_hyper(graph):
-    return mst_hyper_kruskal(graph)
 
 def mst(graph):
-    if graph.dim == 0:
-        return mst_dim0_sparse(graph)  # hint: only edges with weight <= k(n)
     if graph.dim == 1:
         return mst_hyper(graph)
     if graph.dim in (2, 3, 4):
@@ -550,6 +408,10 @@ def main():
                 total_weights += weight
             average_weight = total_weights/5
             print("n: ", n, "avg weight over 5 trials: ", average_weight)
+
+
+
+
 
 
 if __name__ == "__main__":
