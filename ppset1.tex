@@ -1,5 +1,7 @@
 \documentclass[11pt]{article}
 \usepackage{soul}
+\usepackage{amsmath}
+\usepackage{float}
 % \pagestyle{empty}
 
 \setlength{\oddsidemargin}{-0.25 in}
@@ -24,180 +26,146 @@
 \newcommand{\achnote}[1]{{\color{orange} [Adam: #1]}}
 
 \begin{document}
-	
 	\section*{CS 1240 Programming Assignment 1: Spring 2026}
- 		
-	\textbf{Your name(s) (up to two):} 
-		
-	\noindent \textbf{Collaborators:} \\
-    (You shouldn't have any collaborators but the up-to-two of you, but tell us if you did.)
-
-	\noindent \textbf{No. of late days used on previous psets: }\\
-	\noindent \textbf{No. of late days used after including this pset: }
-
-\noindent Homework is due Wednesday Feb. 18 at 11:59pm ET. You are allowed up to {\bf twelve} late days through the semester, but the number of late days you take on each assignment must be a nonnegative integer at most {\bf two}. (Note that you have a total of 10 assignments --- 7 Problems sets and 3 Programming problem sets.)
-
+	\textbf{Your name(s) (up to two):} Annika Palm and Michelle Weon \\
+	\noindent \textbf{Collaborators:} None \\
+	\noindent \textbf{No. of late days used on previous psets: } (3 for annika)\\
+	\noindent \textbf{No. of late days used after including this pset: } (6 for annika) \\
+    
 \noindent {\bf {\Large Overview}:}
 The purpose of this assignment is to experience some of the problems
 involved with implementing an algorithm (in this case, a minimum
 spanning tree algorithm) in practice.  As an added benefit, we will
 explore how minimum spanning trees behave in random graphs.
 
-\noindent {\bf {\Large Assignment:}}
-You may work in groups of two, or by yourself.  Both partners will
-receive the same grade and turn in a single joint report.
-(You should submit a single copy of the report, with both of you listed as submitters, in Gradescope.)
 
-We recommend using a common programming language such as Python, Java, C, or
-C++.  If you use a more obscure language, that is fine, but if there are
-errors that are correspondingly harder to find it may cause your grade
-to be lower. In previous years the assignment was designed to be very difficult
-to complete in Python due to runtime concerns -- it has been updated this year
-so this is no longer the case, so any advice you may have received to learn
-C++ for this assignment should be taken with a grain of salt.
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c|c}
+        \textbf{n}& \textbf{Average tree size}\\
+        ------ & --------------------------- \\
+        128 & 1.2907931698693316\\
+        256 &1.0985369488383596 \\
+        512 & 1.1949541667887964 \\
+        1024 & 1.1791199032776452 \\
+        2048 &  1.1984589896052946\\
+        4096 &1.1909194425320209  \\
+        8192 & 1.1981356554288438 \\
+        16384 & 1.1969435590125737\\
+        32768 &  1.1981037806374797\\
+    \end{tabular}
+    \caption{Complete Graph (dimension 1)}
+    \label{tab:placeholder}
+\end{table}
 
-For any algorithms or data structures taught in CS 1240 that you wish to use, you must write your own code. For instance, you may not use external libraries for heaps, priority queues, or finding MSTs outright, but you may use external libraries for, e.g., binary search trees, hashing (e.g. built-in Python dictionaries), or routine operations on arrays.
+We guess that our function is $f(n) = 1.2$. No matter the value of $n$, our average tree size remains as  $\approx 1.2$
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c|c}
+        \textbf{n} & \textbf{Average tree size}\\
+        ------ & --------------------------- \\
+        128 & 19.500709799287574 \\
+        256 &35.25277856873798 \\
+        512 & 64.75717734931135\\
+        1024 & 115.9997225025061 \\
+        2048 &  209.5600564819763\\
+        4096 & 388.990443203373  \\
+        8192 & 721.3228271932845\\
+        16384 & 1351.2676259369564\\
+        32768 &  2522.802715814287\\
+        65536 & 4740.6146319871805 \\
+        131072 &  8924.969706574975\\
+        262144 & 16869.504554608346  \\
+    \end{tabular}
+    \caption{Hypercube graph}
+    \label{tab:placeholder}
+\end{table}
 
-For most of the following cases, we will be considering {\em complete, undirected} graphs.  A graph with $n$ vertices is complete if all $n \choose 2$ pairs of vertices are edges in the graph. The hypercube graph is the only exception -- please pay special attention to that description.
+We guess that our function is $f(n) = 0.65n$. The function appears linear with $f = \Theta(n)$, and we can calculate the rate of change between each value to find that the total average rate of change is $\approx 0.65$
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c|c}
+        \textbf{n} & \textbf{Average tree size}\\
+        ------ & --------------------------- \\
+        128 & 7.787736965766063\\
+        256 &10.484601468647364 \\
+        512 & 14.905898534580235 \\
+        1024 & 21.253455806066036 \\
+        2048 &  29.654844756531027\\
+        4096 & 41.68774820407019 \\
+        8192 &  58.87139177359353\\
+        16384 &  83.2404638477565\\
+        32768 &  117.4690205742614\\
+    \end{tabular}
+    \caption{Complete graph (dimension 2)}
+    \label{tab:placeholder}
+\end{table}
 
-Consider the following types of graphs:
-\begin{itemize}
-\item Complete graphs on $n$ vertices, where the weight of each edge
-is a real number chosen uniformly at random on $[0,1]$.
-\item ``Hypercube" graphs on $n$ vertices numbered 0 through $n-1$, where $(a,b)$ is an edge iff $|a-b| = 2^i$ for some $i$, and the weight of each edge is a real number chosen uniformly at random on $[0,1]$. (This does not exactly match the true definition of a hypercube graph, but it is the definition we will work with for simplicity)
-\item Complete graphs on $n$ vertices, where the vertices are points
-chosen uniformly at random inside the unit square.  (That is, the points
-are $(x,y)$, with $x$ and $y$ each a real number chosen uniformly at
-random from $[0,1]$.)  The weight of an edge is just the Euclidean
-distance between its endpoints.  
-\item Complete graphs on $n$ vertices, where the vertices are points
-chosen uniformly at random inside the unit cube (3 dimensions) and
-hypercube (4 dimensions).  As with the unit square case above, the
-weight of an edge is just the Euclidean distance between its
-endpoints.
-\end{itemize}
+We guess that our function is $f(n) = 0.65 \sqrt{ n}$. When graphing the values, we see that it closely resembles the graph of $\sqrt{n}$, and we found the constant factor to be $\approx 0.65$
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c|c}
+        \textbf{n} & \textbf{Average tree size}\\
+        ------ & --------------------------- \\
+        128 &  17.72625348332577 \\
+        256 &27.741390212388104 \\
+        512 & 43.39131603531435\\
+        1024 & 67.62254279850062\\
+        2048 &  106.90284877829802\\
+        4096 & 168.90750651946624  \\
+        8192 &  267.20391878535025\\
+        16384 &  422.398589889808\\
+        32768 &  667.7341810821756\\
+    \end{tabular}
+    \caption{Complete graph (dimension 3)}
+    \label{tab:placeholder}
+\end{table}
+We guess that our function is $f(n) = 0.65n^{2/3}$. Our graph most closely resembled the graph of $n^{2/3}$ and found our constant factor to once again be $\approx 0.65$
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c|c}
+        \textbf{n} & \textbf{Average tree size}\\
+        ------ & --------------------------- \\
+        128 &  28.15867397181637\\
+        256 & 47.91248314776185 \\
+        512 & 78.64492120726746 \\
+        1024 & 130.80037531694546 \\
+        2048 &  216.59692894777567\\
+        4096 &  359.3070913867543\\
+        8192 & 604.3192343549927  \\
+        16384 & 1008.1351156849811  \\
+        32768 &  1689.7959194709474\\
+    \end{tabular}
+    \caption{Complete graph (dimension 4)}
+    \label{tab:placeholder}
+\end{table}
 
-{\bf Your goal in this Programming Assignment is to determine, in each of the cases above, how the expected
-(average) weight of the minimum spanning tree (not an edge, the whole MST) grows as a function of
-$n$.  }
+We guess that our function is $f(n) = 0.7n^{3/4}$. Our closely resembled the graph of $n^{3/4}$ and we found our constant factor this time to be $\approx 0.7$
+\newline
+\newline
+\textbf{\large{Discussion:}}
+\newline
+Our implementation uses different MST strategies depending on the graph dimension in order to balance correctness and efficiency. In dimension $0$ (the complete graph with independent $\text{Uniform}[0,1]$ edge weights), explicitly constructing all $\Theta(n^2)$ edges would be computationally infeasible for large $n$. Instead, we use a sparsification technique inspired by the hint in the assignment. For each possible edge $(i,j)$, we generate its weight on the fly and only keep the edge if its weight is at most $k(n) = \frac{15 \log(n+1)}{n+1}$
 
-We give further guidelines on how to get to this goal in the rest of this handout. 
-This will require implementing an MST algorithm, as well as
-procedures that generate the appropriate random graphs.   
-You may implement any MST algorithm (or algorithms!) you wish; however,
-we suggest you choose carefully. 
+We then sort the remaining edges and run Kruskal’s algorithm using a Union-Find data structure with path compression and union by rank. Since the MST of this random graph is extremely unlikely to include edges heavier than $k(n)$, this pruning preserves correctness with high probability while dramatically reducing the number of edges we need to process. Without this filtering step, sorting $\Theta(n^2)$ edges would have made large inputs impractical.
 
-For each type of graph, you must choose several values of $n$ to test.
-For each value of $n$, you must run your code on several randomly
-chosen instances of the same size $n$, and compute the average value
-for your runs.  Plot your values vs. $n$, and interpret your results
-by giving a simple function $f(n)$ that describes your plot.  For
-example, your answer might be $f(n) = \log n$, $f(n) = 1.5\sqrt{n}$,
-or $f(n) = {2n \over \log n}$.  Try to make your answer as accurate as
-possible; this includes determining the constant factors as well as
-you can.  On the other hand, please try to make sure your answer seems
-reasonable.
+For dimension $1$ (the hypercube graph), we explicitly construct the adjacency list. Each vertex connects to other vertices obtained by flipping a single bit in its index, so each vertex has approximately $\log n$ neighbors. This yields a total of $\Theta(n \log n)$ edges. We then compute the MST using Kruskal’s algorithm on this edge set. Because the number of edges grows only as $n \log n$, sorting remains manageable, and this is why we were able to scale up to $n = 262{,}144$ in this case.
 
-\noindent {\bf {\Large Code setup:}} 
+For dimensions $2$, $3$, and $4$, we generate $n$ random points in the unit square, cube, or hypercube, respectively, and compute Euclidean distances between points. Constructing all $\Theta(n^2)$ edges would again be too slow, so we use a grid-based spatial partitioning method. The theoretical maximum edge length in the MST is on the order of $(\frac{\log n}{n})^{1/d}$ so we divide the space into grid cells of comparable size and only consider edges between points in the same cell or neighboring cells. This ensures that each vertex connects only to nearby points, reducing the expected number of edges to roughly $O(n)$ instead of $O(n^2)$. After building this sparse adjacency structure, we run an eager version of Prim’s algorithm using an indexed min-heap that supports decrease-key operations. This keeps the runtime approximately $O(n \log n)$ in expectation.
 
-So that we may test your code ourselves as necessary, we prefer that
-your code accepts the following command line form:
+In terms of asymptotic runtime, the dimension $0$ case runs in roughly $O(n \log^2 n)$ time after sparsification, since we expect about $O(n \log n)$ edges to survive the weight threshold and sorting dominates. The hypercube case also runs in approximately $O(n \log^2 n)$ time due to sorting $\Theta(n \log n)$ edges. For dimensions $2$–$4$, the grid-based pruning reduces the expected number of edges to linear in $n$, so Prim’s algorithm runs in roughly $O(n \log n)$ time. In practice, higher dimensions incur larger constant factors because the number of neighboring grid cells grows as $3^d$, which explains why the $4$D case was noticeably slower than $2$D.
 
-\noindent $./$randmst 0 numpoints numtrials dimension
+The observed growth rates of the MST weight match known theoretical results. In the complete graph with independent random edge weights, the expected total MST weight converges to a constant as $n \to \infty$. Intuitively, as $n$ increases, extremely small edge weights become available, and the MST primarily uses those edges, so the total weight does not grow with $n$.
 
-Accepting that command line form is optional. If your code doesn't and we need to test your code, we may need to contact you.
+For the hypercube graph, each vertex has only $\Theta(\log n)$ neighbors, so the number of candidate edges does not grow quadratically. As a result, the minimum available edge weights do not shrink as quickly as in the complete graph, and the expected weight per MST edge remains roughly constant. Since the MST has $n-1$ edges, the total weight grows linearly with $n$.
 
-The flag 0 is meant to provide you some flexibility; you may use other
-values for your own testing, debugging, or extensions.
-The value
-numpoints is $n$, the number of points; the value numtrials is the
-number of runs to be done; the value dimension gives the dimension.
-(Use dimension $0$ for the complete graph with randomly distributed weights, and dimension $1$ for the hypercube graph with randomly distributed weights; use dimensions $2$, $3$, $4$ for the complete graphs on points in 2D, 3D, and 4D space, respectively;
-Notice that points in 0 or 1 dimensions are not particularly interesting, so we are reusing the 0 and 1 labels)
-The output for the above command line should be the following:
+For the geometric graphs in $d$ dimensions, points are distributed uniformly in the unit hypercube. The typical spacing between nearest neighbors is approximately $n^{-1/d}$, and the MST contains $n-1$ edges, so the total weight scales as  $n \cdot n^{-1/d} = n^{(d-1)/d}$
 
-\noindent average numpoints numtrials dimension
+Our experimental results closely match this prediction: the $2$D case behaves like $n^{1/2}$, the $3$D case like $n^{2/3}$, and the $4$D case like $n^{3/4}$.
 
-where average is the average minimum spanning tree weight over the
-trials.  
+In terms of practical performance, the densest case would have been dimension $0$ without sparsification, but the filtering step made it feasible for large $n$. The hypercube scaled particularly well because it is inherently sparse. The geometric cases became slower in higher dimensions due to increased constant factors from checking more neighboring cells and computing higher-dimensional distances. We also observed slowdowns at very large $n$, likely due to memory usage and cache effects.
 
-It is convenient for us in grading to be able to run the programs without any special per-student attention. The following three instructions make that easier for us, but don't spend more than a few minutes trying to satisfy them---we can contact you to ask about seeing the code run on your machine if necessary.
-\begin{itemize}
-\item If possible, for compatibility reasons, the code should run on a Unix/Linux system, even if you code on another system.
-\item We expect the code as described above in its own file(s) separate from your results/writeup.
-\item The code should compile with make; no instructions for humans.  That is,
-the command ``make randmst'' should produce an executable from your directory.
-You may need to read up on makefiles to make this happen.
-\end{itemize}
+Finally, we used Python’s built-in \texttt{random.random()} as our pseudorandom number generator. Across multiple trials, the averages converged smoothly and showed no irregular behavior. Because the results were stable and consistent across independent runs, we believe the random number generator was sufficiently reliable for this assignment.
 
-Note:  you should test your program -- design tests to make sure your
-program is working, for example by checking it on some small examples
-(or find other tests of your choosing).  You don't need to put your
-tests in your writeup; that is for you.  
-
-\noindent {\bf {\Large What to turn in:}} 
-Besides {\em submitting a copy of the code you created},
-your group should submit a single well organized and clearly written
-report describing your results.  For the first part of the assignment,
-this report must contain the following quantitative results (for each
-graph type):
-\begin{itemize}
-\item A table listing the average tree size for several values of $n$.
-(A {\em graph} is insufficient, although you can have that too;  we need to see the actual numbers.)
-\item A description of your guess for the function $f(n)$.
-\end{itemize}
-For all {\em complete graphs}, run your program for $n =$
-128; 256; 512; 1024; 2048; 4096; 8192; 16384; 32768; and larger values, if your
-program runs fast enough. For the hypercube graph (dimension 1), run your program for $n =$
-128; 256; 512; 1024; 2048; 4096; 8192; 16384; 32768; 65536; 131072; 262144 (Providing results only for smaller $n$ will hurt your score
-on the assignment.) Run each value of $n$ at least five times and
-take the average.  (Make sure your experiments use independently generated randomness!)
-
-In addition, you are expected to discuss your experiments in more
-depth.  This discussion should reflect what you have learned from
-this assignment. You should, at a minimum, discuss the asymptotic runtime of your algorithm(s) and the correctness of any modifications from the standard algorithms presented in class; otherwise, the actual issues you choose to discuss are up to
-you.  Here are some possible suggestions for the second part:
-\begin{itemize}
-\item Which algorithm did you use, and why?
-\item Are the growth rates (the $f(n)$) surprising?  Can you
-come up with an explanation for them?
-\item How long does it take your algorithm to run?  Does this make sense?  Do you notice things like the cache size of your computer having an effect?
-\item Did you have any interesting experiences with the random
-number generator?  Do you trust it?
-\end{itemize}
-
-Your grade will be based primarily on the correctness of your program
-and your discussion of the experiments.  Other considerations will
-include the size of $n$ your program can handle.  Please do a careful
-job of solid writing in your writeup.  Length will not earn you a
-higher grade, but clear descriptions of what you did, why you did it,
-and what you learned by doing it will go far.  
-
-\noindent {\bf {\Large Hints:}}
-
-To handle large $n$, you may want to consider simplifying the
-graph.  For example, for the graphs in this assignment, the minimum
-spanning tree is extremely unlikely to use any edge of weight greater
-than $k(n)$, for some function $k(n)$.  We can estimate $k(n)$ using
-small values of $n$, and then try to throw away edges of weight larger
-than $k(n)$ as we increase the input size.  Notice that throwing away
-too many edges may cause problems.  Why will throwing away edges in
-this manner never lead to a situation where the program returns
-the wrong tree?
-
-You may invent any other techniques you like, as long as they give the
-same results as a non-optimized program.  Be sure to explain any
-techniques you use as part of your discussion and attempt to justify
-why they should give the same results as a non-optimized program!
 
 \end{document}
-
-
-
-
-
-
-
-
-
-
